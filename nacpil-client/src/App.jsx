@@ -11,6 +11,7 @@ function App() {
         <p>
           Name: Celesse Aisle M. Nacpil <br />
           Email: notaisle@gmail.com <br />
+          Section: INF231 <br />
           GitHub: <a href="https://www.github.com/inthehallways" target="_blank" rel="noopener noreferrer">inthehallways</a> <br />
           Fun fact: i like frogs xDDDD 
         </p>
