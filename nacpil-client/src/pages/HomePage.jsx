@@ -5,7 +5,7 @@ import posas from '../assets/images/posas.png';
 import posahaha from '../assets/images/posahaha.png';
 
 {/* 
-    Enhancement 2: Revise and expand the content of the three pages [Home, About, and Articles]. 
+    Lab Act 2 Enhancement 2: Revise and expand the content of the three pages [Home, About, and Articles]. 
         Use: 
         • Image 
         • Content-writeups 
