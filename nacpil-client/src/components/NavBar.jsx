@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import logo from '../assets/typed.png';
 import Button from '../components/Button';
 
-{/* Enhancement 1: Make a design for the navigation bar*/}
+/* Enhancement 1: Make a design for the navigation bar*/
 const leftLinks = [
     { label: 'Home', to: '/' },
     { label: 'About', to: '/about' },
@@ -45,10 +45,12 @@ const NavBar = () => {
                     ))}
                     
                     <div className="ml-2 border-l-2 border-zinc-300 pl-6">
-                        <Button to="https://www.16personalities.com/free-personality-test" variant="primary" className="py-2 text-[11px]">
-                            Take Test
+                        <Button to="/auth/signin" variant="primary" className="py-2 text-[11px]">
+                            Sign In
                         </Button>
                     </div>
+                    
+
                 </nav>
             </div>
         </header>

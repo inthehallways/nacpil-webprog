@@ -1,6 +1,4 @@
-{/* 
-    Lab Act 2 Enhancement 3: Make a design for the Not Found Page.
-*/}
+/* Lab Act 2 Enhancement 3: Make a design for the Not Found Page. */
 
 import Button from '../components/Button';
 import lostCatPic from '../assets/images/lost_poosay.png';

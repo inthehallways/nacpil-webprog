@@ -1,17 +1,17 @@
-import Button from '../components/Button';
-import intuition from '../assets/images/intuition.png';
-import sensing from '../assets/images/sensing.png';
-import thinking from '../assets/images/thinking.png';
-import feeling from '../assets/images/feeling.png';
-import heroImage1 from '../assets/images/posahuh.png';
-import heroImage2 from '../assets/images/posawow.png';
+import Button from '../../components/Button';
+import intuition from '../../assets/images/intuition.png';
+import sensing from '../../assets/images/sensing.png';
+import thinking from '../../assets/images/thinking.png';
+import feeling from '../../assets/images/feeling.png';
+import heroImage1 from '../../assets/images/posahuh.png';
+import heroImage2 from '../../assets/images/posawow.png';
 
-{/* 
+/* 
     Enhancement 2: Revise and expand the content of the three pages [Home, About, and Articles]. 
         Use: 
         • Image 
         • Content-writeups 
-*/}
+*/
 
 const AboutPage = () => {
     return (
@@ -37,9 +37,7 @@ const AboutPage = () => {
                             What is the Myers-Briggs Type Indicator (MBTI)?
                         </h1>
                         <p className="mt-4 max-w-lg text-sm leading-7 text-zinc-600 sm:text-base">
-                            <p className="mt-4 max-w-lg text-sm leading-7 text-zinc-600 sm:text-base">
-                                Created by Katharine Cook Briggs and Isabel Briggs Myers using the theories of psychologist Carl Jung, the MBTI is a self-report questionnaire that sorts people into 16 distinct types. While it is not a clinical diagnosis, it serves as an insightful tool to help you explore your strengths, understand your decision-making preferences, and learn how you interact with the world.
-                            </p>
+                            Created by Katharine Cook Briggs and Isabel Briggs Myers using the theories of psychologist Carl Jung, the MBTI is a self-report questionnaire that sorts people into 16 distinct types. While it is not a clinical diagnosis, it serves as an insightful tool to help you explore your strengths, understand your decision-making preferences, and learn how you interact with the world.
                         </p>
                         <div className="mt-6 flex flex-wrap gap-3">
                             <Button to="/" variant="primary">

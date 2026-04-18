@@ -1,6 +1,6 @@
-{/* 
+/* 
     Lab Act 3 Enhancement 1: Create and make a design for the Footer. 
-*/}
+*/
 
 import { NavLink } from 'react-router-dom';
 

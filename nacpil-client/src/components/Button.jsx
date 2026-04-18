@@ -12,6 +12,8 @@ const Button = ({
     variant = 'secondary',
     className = '',
 }) => {
+    const isExternalLink = typeof to === 'string' && /^(https?:)?\/\//.test(to);
+
     const classes = [
         'inline-flex items-center justify-center rounded-full border-2 border-zinc-900 px-4 py-2 text-[10px] font-semibold uppercase tracking-[0.24em] transition',
         variantClasses[variant] ?? variantClasses.secondary,
@@ -20,6 +22,14 @@ const Button = ({
 
         .join(' ')
         .trim();
+
+    if (isExternalLink) {
+        return (
+            <a href={to} className={classes} target="_blank" rel="noreferrer">
+                {children}
+            </a>
+        );
+    }
 
     if (to) {
         return (
