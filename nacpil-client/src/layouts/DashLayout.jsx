@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { styled, useTheme, alpha } from "@mui/material/styles";
+import { styled, useTheme, alpha, createTheme, ThemeProvider } from "@mui/material/styles";
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import MuiAppBar from '@mui/material/AppBar';
@@ -24,9 +24,9 @@ import PeopleIcon from '@mui/icons-material/People';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import Button from '@mui/material/Button';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
-import ArticleIcon from '@mui/icons-material/Article';
 
 const drawerWidth = 240;
+
 const dashboardNavItems = [
     {
         label: 'Dashboard',
@@ -47,6 +47,19 @@ const dashboardNavItems = [
         icon: PeopleIcon,
     },
 ];
+
+const dashboardTheme = createTheme({
+    typography: {
+        fontFamily: [
+            'ui-sans-serif',
+            'system-ui',
+            '-apple-system',
+            'BlinkMacSystemFont',
+            '"Segoe UI"',
+            'sans-serif',
+        ].join(','),
+    },
+});
 
 const openedMixin = (theme) => ({
     width: drawerWidth,
@@ -73,7 +86,7 @@ const DrawerHeader = styled("div")(({ theme }) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-end",
-    padding: theme.spacing(0, 1),
+    padding: theme.spacing(0, 1.5),
     ...theme.mixins.toolbar,
 }));
 
@@ -81,6 +94,10 @@ const AppBar = styled(MuiAppBar, {
     shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
     zIndex: theme.zIndex.drawer + 1,
+    backgroundColor: "#f5f5f4",
+    color: "#18181b",
+    boxShadow: "none",
+    borderBottom: "2px solid #18181b",
     transition: theme.transitions.create(["width", "margin"], {
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.leavingScreen,
@@ -95,20 +112,35 @@ const AppBar = styled(MuiAppBar, {
     }),
 }));
 
-const Drawer = styled(MuiDrawer, { 
+const Drawer = styled(MuiDrawer, {
     shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
     width: drawerWidth,
     flexShrink: 0,
     whiteSpace: "nowrap",
     boxSizing: "border-box",
+    "& .MuiDrawer-paper": {
+        backgroundColor: "#e7e5e4",
+        color: "#18181b",
+        borderRight: "2px solid #18181b",
+    },
     ...(open && {
         ...openedMixin(theme),
-        "& .MuiDrawer-paper": openedMixin(theme),
+        "& .MuiDrawer-paper": {
+            ...openedMixin(theme),
+            backgroundColor: "#e7e5e4",
+            color: "#18181b",
+            borderRight: "2px solid #18181b",
+        },
     }),
     ...(!open && {
         ...closedMixin(theme),
-        "& .MuiDrawer-paper": closedMixin(theme),
+        "& .MuiDrawer-paper": {
+            ...closedMixin(theme),
+            backgroundColor: "#e7e5e4",
+            color: "#18181b",
+            borderRight: "2px solid #18181b",
+        },
     }),
 }));
 
@@ -124,12 +156,13 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
 
 const Search = styled("div")(({ theme }) => ({
     position: "relative",
-    borderRadius: theme.shape.borderRadius,
-    backgroundColor: alpha(theme.palette.common.white, 0.15),
+    borderRadius: 999,
+    border: "2px solid #18181b",
+    backgroundColor: "#fafaf9",
     "&:hover": {
-        backgroundColor: alpha(theme.palette.common.white, 0.25),
+        backgroundColor: "#f5f5f4",
     },
-    marginRight: theme.spacing(2),
+    marginRight: theme.spacing(1),
     marginLeft: 0,
     width: "100%",
     [theme.breakpoints.up("sm")]: {
@@ -139,10 +172,9 @@ const Search = styled("div")(({ theme }) => ({
 }));
 
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: "inherit",
+    color: "#18181b",
     "& .MuiInputBase-input": {
         padding: theme.spacing(1, 1, 1, 0),
-        // vertical padding + font size from searchIcon
         paddingLeft: `calc(1em + ${theme.spacing(4)})`,
         transition: theme.transitions.create("width"),
         width: "100%",
@@ -152,7 +184,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
     },
 }));
 
-const getPageTitle = (pathname) => 
+const getPageTitle = (pathname) =>
     dashboardNavItems.find(({ to }) => to === pathname)?.title || 'Welcome';
 
 const DashLayout = () => {
@@ -175,21 +207,41 @@ const DashLayout = () => {
     };
 
     return (
-        <>
-            <Box sx={{ display: "flex" }}>
+        <ThemeProvider theme={dashboardTheme}>
+            <Box
+                sx={{
+                    display: "flex",
+                    minHeight: "100vh",
+                    bgcolor: "#f5f5f4",
+                    color: "#18181b",
+                    fontFamily: "inherit",
+                    position: "relative",
+                    "&::before": {
+                        content: '""',
+                        position: "fixed",
+                        inset: 0,
+                        pointerEvents: "none",
+                        opacity: 0.18,
+                        mixBlendMode: "multiply",
+                        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+                    },
+                }}
+            >
                 <CssBaseline />
-                {/* AppBar */ }
-                {/* <AppBar position="fixed" open={open}> */}
-                <AppBar position="fixed">
-                    <Toolbar>
-                        <IconButton 
+                <AppBar position="fixed" open={open}>
+                    <Toolbar sx={{ gap: 2 }}>
+                        <IconButton
                             color="inherit"
                             aria-label="open drawer"
-                            // onClick={(open)}
                             onClick={open ? handleDrawerClose : handleDrawerOpen}
                             edge="start"
-                            //sx={{ marginRight: 5, ...(open && { display: 'none' }) }}
-                            sx={{ marginRight: 5, ...open}}
+                            sx={{
+                                marginRight: 1,
+                                borderRadius: "12px",
+                                "&:hover": {
+                                    bgcolor: alpha("#18181b", 0.06),
+                                },
+                            }}
                         >
                             {open ? <MenuOpenIcon /> : <MenuIcon />}
                         </IconButton>
@@ -197,39 +249,78 @@ const DashLayout = () => {
                             variant="h6"
                             noWrap
                             component="div"
-                            sx={{ flexGrow: 1 }}
+                            sx={{
+                                flexGrow: 1,
+                                fontWeight: 700,
+                                letterSpacing: "0.03em",
+                            }}
                         >
                             {pageTitle}
                         </Typography>
-                        {/* Search */}
                         <Search>
                             <SearchIconWrapper>
                                 <SearchIcon />
                             </SearchIconWrapper>
                             <StyledInputBase
-                                placeholder="Search…"
+                                placeholder="Search..."
                                 inputProps={{ "aria-label": "search" }}
                             />
                         </Search>
-                        <Button color="inherit" variant="outlined" onClick={handleLogout}>
-                            Logout
-                        </Button>
+                        <Box
+                            sx={{
+                                ml: 1,
+                                pl: 3,
+                                borderLeft: "2px solid #d6d3d1",
+                                display: "flex",
+                                alignItems: "center",
+                            }}
+                        >
+                            <Button
+                                color="inherit"
+                                variant="outlined"
+                                onClick={handleLogout}
+                                sx={{
+                                    border: "2px solid #18181b",
+                                    borderRadius: "999px",
+                                    px: 2,
+                                    py: 1,
+                                    fontSize: "0.625rem",
+                                    fontWeight: 600,
+                                    letterSpacing: "0.24em",
+                                    textTransform: "uppercase",
+                                    color: "#fafaf9",
+                                    backgroundColor: "#18181b",
+                                    "&:hover": {
+                                        border: "2px solid #18181b",
+                                        backgroundColor: "#3f3f46",
+                                    },
+                                }}
+                            >
+                                Logout
+                            </Button>
+                        </Box>
                     </Toolbar>
                 </AppBar>
-                {/* Drawer */ }
                 <Drawer variant="permanent" open={open}>
                     <DrawerHeader>
-                        <IconButton onClick={handleDrawerClose}>
+                        <IconButton
+                            onClick={handleDrawerClose}
+                            sx={{
+                                borderRadius: "12px",
+                                "&:hover": {
+                                    bgcolor: alpha("#18181b", 0.06),
+                                },
+                            }}
+                        >
                             {theme.direction === "rtl" ? (
                                 <ChevronRightIcon />
                             ) : (
                                 <ChevronLeftIcon />
-                            )} 
+                            )}
                         </IconButton>
                     </DrawerHeader>
                     <Divider />
-                    {/* Drawer List */ }
-                    <List>
+                    <List sx={{ px: open ? 1.5 : 1, py: 1 }}>
                         {dashboardNavItems.map(({ label, to, icon: Icon }) => (
                             <ListItem key={to} disablePadding sx={{ display: "block" }}>
                                 <ListItemButton
@@ -238,8 +329,17 @@ const DashLayout = () => {
                                     selected={location.pathname === to}
                                     sx={{
                                         minHeight: 48,
-                                        px: 2.5,
+                                        px: open ? 2.5 : 1.25,
+                                        mb: 1,
+                                        border: "2px solid",
+                                        borderColor: location.pathname === to ? "#18181b" : "transparent",
+                                        borderRadius: "14px",
+                                        bgcolor: location.pathname === to ? "#f5f5f4" : "transparent",
                                         justifyContent: open ? "initial" : "center",
+                                        "&:hover": {
+                                            bgcolor: alpha("#f5f5f4", 0.9),
+                                            borderColor: "#18181b",
+                                        },
                                     }}
                                 >
                                     <ListItemIcon
@@ -247,26 +347,55 @@ const DashLayout = () => {
                                             minWidth: 0,
                                             mr: open ? 3 : "auto",
                                             justifyContent: "center",
+                                            color: "#18181b",
                                         }}
                                     >
                                         <Icon />
                                     </ListItemIcon>
-                                    <ListItemText 
+                                    <ListItemText
                                         primary={label}
-                                        sx={{ opacity: open ? 1 : 0 }}
+                                        sx={{
+                                            opacity: open ? 1 : 0,
+                                            "& .MuiTypography-root": {
+                                                fontSize: "0.78rem",
+                                                fontWeight: 700,
+                                                letterSpacing: "0.16em",
+                                                textTransform: "uppercase",
+                                            },
+                                        }}
                                     />
                                 </ListItemButton>
                             </ListItem>
                         ))}
                     </List>
                 </Drawer>
-                <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
+                <Box
+                    component="main"
+                    sx={{
+                        flexGrow: 1,
+                        minWidth: 0,
+                        p: { xs: 2, md: 3 },
+                        position: "relative",
+                        zIndex: 1,
+                        overflowX: "hidden",
+                    }}
+                >
                     <DrawerHeader />
-                    {/* Content */ }
-                    <Outlet />
+                    <Box
+                        sx={{
+                            minHeight: "calc(100vh - 96px)",
+                            border: "2px solid #18181b",
+                            borderRadius: "28px",
+                            backgroundColor: alpha("#fafaf9", 0.92),
+                            p: { xs: 2, md: 3 },
+                            overflowX: "hidden",
+                        }}
+                    >
+                        <Outlet />
+                    </Box>
                 </Box>
             </Box>
-        </>
+        </ThemeProvider>
     );
 };
 
