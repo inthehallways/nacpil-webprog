@@ -24,6 +24,7 @@ import PeopleIcon from '@mui/icons-material/People';
 import AssessmentIcon from '@mui/icons-material/Assessment';
 import Button from '@mui/material/Button';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import typedLogo from '../assets/images/typed_lightver.png';
 
 const drawerWidth = 240;
 
@@ -302,7 +303,45 @@ const DashLayout = () => {
                     </Toolbar>
                 </AppBar>
                 <Drawer variant="permanent" open={open}>
-                    <DrawerHeader>
+                    <DrawerHeader
+                        sx={{
+                            justifyContent: open ? "space-between" : "center",
+                            px: open ? 2 : 1,
+                            gap: 1,
+                        }}
+                    >
+                        <Box
+                            sx={{
+                                display: open ? "flex" : "none",
+                                alignItems: "center",
+                                gap: 1.25,
+                                minWidth: 0,
+                            }}
+                        >
+                            <Box
+                                component="img"
+                                src={typedLogo}
+                                alt="Typed"
+                                sx={{
+                                    width: 60,
+                                    height: "auto",
+                                    flexShrink: 0,
+                                    objectFit: "contain",
+                                }}
+                            />
+                            <Typography
+                                sx={{
+                                    fontSize: "0.62rem",
+                                    fontWeight: 800,
+                                    letterSpacing: "0.18em",
+                                    lineHeight: 1.2,
+                                    color: "#71717a",
+                                    textTransform: "uppercase",
+                                }}
+                            >
+                                Admin Panel
+                            </Typography>
+                        </Box>
                         <IconButton
                             onClick={handleDrawerClose}
                             sx={{
