@@ -1,10 +1,10 @@
 // Lab Act 3 Enhancement 2: Create your own article-content.js
 
-import art1 from './images/manyposa.png';
-import art2 from './images/posas.png';
-import art3 from './images/cutieposa.png';
-import art4 from './images/intjposa.png';
-import art5 from './images/stressedposa.png';
+import art1 from '../assets/images/manyposa.png';
+import art2 from '../assets/images/posas.png';
+import art3 from '../assets/images/cutieposa.png';
+import art4 from '../assets/images/intjposa.png';
+import art5 from '../assets/images/stressedposa.png';
 
 const articles = [
     {

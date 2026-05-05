@@ -70,7 +70,7 @@ const SignUpPage = () => {
                         className={inputClasses}
                     />
                     <p className='mt-2 text-xs leading-5 text-zinc-500'>
-                        Use a secure password with letters, numbers, and symbols.
+                        It must be a combination of minimum 8 letters, numbers, and symbols.
                     </p>
                 </div>
 
