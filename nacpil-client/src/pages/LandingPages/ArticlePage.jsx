@@ -1,12 +1,50 @@
+import { useEffect, useState } from 'react';
 import Button from '../../components/Button.jsx';
 import { useParams, Navigate } from 'react-router-dom';
-import articles from '../../data/article-content.js';
+import staticArticles from '../../data/article-content.js';
+import { fetchArticleByName } from '../../services/ArticleService.js';
 
 function ArticlePage() {
     const { name } = useParams();
-    const article = articles.find(article => article.name === name);
+    const [article, setArticle] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [notFound, setNotFound] = useState(false);
 
-    if (!article) {
+    useEffect(() => {
+        const loadArticle = async () => {
+            try {
+                setIsLoading(true);
+                setNotFound(false);
+                const { data } = await fetchArticleByName(name);
+                if (data.isPublished === false) {
+                    setNotFound(true);
+                    return;
+                }
+                setArticle(data);
+            } catch {
+                const fallbackArticle = staticArticles.find((item) => item.name === name);
+                if (fallbackArticle) {
+                    setArticle(fallbackArticle);
+                } else {
+                    setNotFound(true);
+                }
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadArticle();
+    }, [name]);
+
+    if (isLoading) {
+        return (
+            <div className="border-y-2 border-zinc-900 bg-zinc-50 px-4 py-6 text-sm font-medium text-zinc-600 sm:px-6 sm:py-8 lg:px-8">
+                Loading article...
+            </div>
+        );
+    }
+
+    if (notFound || !article) {
         return <Navigate to="/404" replace />;
     }
 

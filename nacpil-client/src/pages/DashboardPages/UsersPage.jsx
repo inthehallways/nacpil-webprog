@@ -106,11 +106,32 @@ const statLabelSx = {
     color: '#71717a',
 };
 
+const grainBackground = `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`;
+
 const cardSx = {
     border: '2px solid #18181b',
     borderRadius: '20px',
     backgroundColor: '#f5f5f4',
     boxShadow: 'none',
+};
+
+const statCardSx = {
+    ...cardSx,
+    position: 'relative',
+    overflow: 'hidden',
+    '&::before': {
+        content: '""',
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        opacity: 0.18,
+        mixBlendMode: 'multiply',
+        backgroundImage: grainBackground,
+    },
+    '& > *': {
+        position: 'relative',
+        zIndex: 1,
+    },
 };
 
 const actionButtonSx = {
@@ -126,6 +147,17 @@ const actionButtonSx = {
     textTransform: 'uppercase',
     lineHeight: 1.2,
     boxShadow: 'none',
+};
+
+const tableActionButtonSx = {
+    ...actionButtonSx,
+    minWidth: 76,
+    minHeight: 30,
+    borderRadius: '10px',
+    px: 1,
+    py: 0,
+    fontSize: '0.55rem',
+    letterSpacing: '0.16em',
 };
 
 const dataGridSx = {
@@ -195,6 +227,8 @@ const dashboardFieldSx = {
 const UsersPage = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+    const currentUserType = localStorage.getItem('type');
+    const canManageUsers = currentUserType === 'admin';
     const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filters, setFilters] = useState({
@@ -213,6 +247,11 @@ const UsersPage = () => {
 
     useEffect(() => {
         const loadUsers = async () => {
+            if (!canManageUsers) {
+                setIsLoading(false);
+                return;
+            }
+
             try {
                 setIsLoading(true);
                 setApiError('');
@@ -226,7 +265,7 @@ const UsersPage = () => {
         };
 
         loadUsers();
-    }, []);
+    }, [canManageUsers]);
 
     const resetForm = () => {
         setForm({ ...blankForm });
@@ -478,7 +517,7 @@ const UsersPage = () => {
         {
             field: 'actions',
             headerName: 'Actions',
-            width: 224,
+            width: 190,
             sortable: false,
             filterable: false,
             align: 'center',
@@ -500,7 +539,7 @@ const UsersPage = () => {
                         variant="outlined"
                         onClick={() => openModal(row)}
                         sx={{
-                            ...actionButtonSx,
+                            ...tableActionButtonSx,
                             backgroundColor: '#fafaf9',
                             color: '#18181b',
                             '&:hover': {
@@ -516,7 +555,7 @@ const UsersPage = () => {
                         variant="contained"
                         onClick={() => toggleStatus(row.id)}
                         sx={{
-                            ...actionButtonSx,
+                            ...tableActionButtonSx,
                             backgroundColor: row.isActive ? '#18181b' : '#fafaf9',
                             color: row.isActive ? '#fafaf9' : '#18181b',
                             '&:hover': {
@@ -532,6 +571,19 @@ const UsersPage = () => {
             ),
         },
     ];
+
+    if (!canManageUsers) {
+        return (
+            <Box sx={{ width: '100%', minWidth: 0 }}>
+                <Typography component="h1" sx={{ ...sectionHeadingSx, fontSize: '2rem' }}>
+                    Users
+                </Typography>
+                <Alert severity="warning" sx={{ border: '2px solid #18181b', borderRadius: '16px' }}>
+                    You do not have permission to access the users page.
+                </Alert>
+            </Box>
+        );
+    }
 
     return (
         <Box sx={{ width: '100%', minWidth: 0 }}>
@@ -723,7 +775,7 @@ const UsersPage = () => {
             ) : null}
 
             <Stack direction={{ xs: 'column', md: 'row' }} spacing={2} sx={{ mb: 4 }}>
-                <Card sx={{ ...cardSx, flex: 1 }}>
+                <Card sx={{ ...statCardSx, flex: 1 }}>
                     <CardContent>
                         <Typography sx={statLabelSx}>Total Users</Typography>
                         <Typography sx={{ mt: 1, fontSize: '2rem', fontWeight: 700, color: '#18181b' }}>
@@ -731,7 +783,7 @@ const UsersPage = () => {
                         </Typography>
                     </CardContent>
                 </Card>
-                <Card sx={{ ...cardSx, flex: 1 }}>
+                <Card sx={{ ...statCardSx, flex: 1 }}>
                     <CardContent>
                         <Typography sx={statLabelSx}>Filtered Users</Typography>
                         <Typography sx={{ mt: 1, fontSize: '2rem', fontWeight: 700, color: '#18181b' }}>

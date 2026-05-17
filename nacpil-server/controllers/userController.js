@@ -69,6 +69,11 @@ const loginUser = async (req, res) => {
             return res.status(403).json({ message: 'Your account is inactive. Please contact support.' });
         }
 
+        const userType = String(user.type || '').trim().toLowerCase();
+        if (userType === 'viewer') {
+            return res.status(403).json({ message: 'Viewers are not allowed to log in.' });
+        }
+
         // compare the provided password with the hashed password
         const isPasswordValid = await bcrypt.compare(password, user.password);
         if (!isPasswordValid) {
@@ -77,12 +82,12 @@ const loginUser = async (req, res) => {
 
         // generate a JWT token
         const token = jwt.sign(
-            { id: user._id, email: user.email, type: user.type }, // include type in the token
+            { id: user._id, email: user.email, type: userType }, // include type in the token
             process.env.JWT_SECRET,
             { expiresIn: '1h' }
         );
 
-        res.json({ message: 'Login successful', token, type: user.type, firstName: user.firstName  }); // include type in the response
+        res.json({ message: 'Login successful', token, type: userType, firstName: user.firstName, username: user.username  }); // include type in the response
     } catch (error) {
         res.status(500).json({ message: error.message });
     }

@@ -11,8 +11,6 @@ import Typography from '@mui/material/Typography';
 import Divider from '@mui/material/Divider';
 import IconButton from '@mui/material/IconButton';
 import MenuIcon from '@mui/icons-material/Menu';
-import SearchIcon from '@mui/icons-material/Search';
-import InputBase from '@mui/material/InputBase';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ListItem from '@mui/material/ListItem';
@@ -22,8 +20,10 @@ import ListItemText from '@mui/material/ListItemText';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import PeopleIcon from '@mui/icons-material/People';
 import AssessmentIcon from '@mui/icons-material/Assessment';
+import ArticleIcon from '@mui/icons-material/Article';
 import Button from '@mui/material/Button';
 import MenuOpenIcon from '@mui/icons-material/MenuOpen';
+import Chip from '@mui/material/Chip';
 import typedLogo from '../assets/images/typed_lightver.png';
 
 const drawerWidth = 240;
@@ -40,6 +40,12 @@ const dashboardNavItems = [
         title: 'Reports',
         to: '/dashboard/reports',
         icon: AssessmentIcon,
+    },
+    {
+        label: 'Articles',
+        title: 'Articles',
+        to: '/dashboard/articles',
+        icon: ArticleIcon,
     },
     {
         label: 'Users',
@@ -145,46 +151,6 @@ const Drawer = styled(MuiDrawer, {
     }),
 }));
 
-const SearchIconWrapper = styled("div")(({ theme }) => ({
-    padding: theme.spacing(0, 2),
-    height: "100%",
-    position: "absolute",
-    pointerEvents: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-}));
-
-const Search = styled("div")(({ theme }) => ({
-    position: "relative",
-    borderRadius: 999,
-    border: "2px solid #18181b",
-    backgroundColor: "#fafaf9",
-    "&:hover": {
-        backgroundColor: "#f5f5f4",
-    },
-    marginRight: theme.spacing(1),
-    marginLeft: 0,
-    width: "100%",
-    [theme.breakpoints.up("sm")]: {
-        marginLeft: theme.spacing(3),
-        width: "auto",
-    },
-}));
-
-const StyledInputBase = styled(InputBase)(({ theme }) => ({
-    color: "#18181b",
-    "& .MuiInputBase-input": {
-        padding: theme.spacing(1, 1, 1, 0),
-        paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-        transition: theme.transitions.create("width"),
-        width: "100%",
-        [theme.breakpoints.up("md")]: {
-            width: "20ch",
-        },
-    },
-}));
-
 const getPageTitle = (pathname) =>
     dashboardNavItems.find(({ to }) => to === pathname)?.title || 'Welcome';
 
@@ -194,6 +160,11 @@ const DashLayout = () => {
     const location = useLocation();
     const pageTitle = getPageTitle(location.pathname);
     const navigate = useNavigate();
+    const currentUserType = localStorage.getItem('type');
+    const displayUsername = localStorage.getItem('username') || localStorage.getItem('firstName') || 'User';
+    const visibleNavItems = dashboardNavItems.filter(
+        ({ to }) => currentUserType === 'admin' || to !== '/dashboard/users'
+    );
 
     const handleDrawerOpen = () => {
         setOpen(true);
@@ -204,6 +175,10 @@ const DashLayout = () => {
     };
 
     const handleLogout = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('type');
+        localStorage.removeItem('firstName');
+        localStorage.removeItem('username');
         navigate("/");
     };
 
@@ -258,15 +233,20 @@ const DashLayout = () => {
                         >
                             {pageTitle}
                         </Typography>
-                        <Search>
-                            <SearchIconWrapper>
-                                <SearchIcon />
-                            </SearchIconWrapper>
-                            <StyledInputBase
-                                placeholder="Search..."
-                                inputProps={{ "aria-label": "search" }}
-                            />
-                        </Search>
+                        <Chip
+                            label={`${displayUsername} | ${currentUserType || 'guest'}`}
+                            sx={{
+                                display: { xs: "none", sm: "inline-flex" },
+                                height: 36,
+                                border: "2px solid #18181b",
+                                borderRadius: "999px",
+                                backgroundColor: "#fafaf9",
+                                fontSize: "0.7rem",
+                                fontWeight: 700,
+                                letterSpacing: "0.14em",
+                                textTransform: "uppercase",
+                            }}
+                        />
                         <Box
                             sx={{
                                 ml: 1,
@@ -360,7 +340,7 @@ const DashLayout = () => {
                     </DrawerHeader>
                     <Divider />
                     <List sx={{ px: open ? 1.5 : 1, py: 1 }}>
-                        {dashboardNavItems.map(({ label, to, icon: Icon }) => (
+                        {visibleNavItems.map(({ label, to, icon: Icon }) => (
                             <ListItem key={to} disablePadding sx={{ display: "block" }}>
                                 <ListItemButton
                                     component={Link}
@@ -389,7 +369,7 @@ const DashLayout = () => {
                                             color: "#18181b",
                                         }}
                                     >
-                                        <Icon />
+                                        {React.createElement(Icon)}
                                     </ListItemIcon>
                                     <ListItemText
                                         primary={label}

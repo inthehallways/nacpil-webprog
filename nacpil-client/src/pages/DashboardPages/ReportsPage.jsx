@@ -30,6 +30,42 @@ const cardSx = {
     borderRadius: '20px',
     backgroundColor: '#f5f5f4',
     boxShadow: 'none',
+    position: 'relative',
+    overflow: 'hidden',
+    '&::before': {
+        content: '""',
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        opacity: 0.18,
+        mixBlendMode: 'multiply',
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+    },
+    '& > *': {
+        position: 'relative',
+        zIndex: 1,
+    },
+};
+
+const chartPalette = {
+    primary: '#18181b',
+    accent: '#5b3b8c',
+    secondary: '#71717a',
+    neutral: '#d6d3d1',
+};
+
+const chartSx = {
+    '& .MuiChartsAxis-line, & .MuiChartsAxis-tick': {
+        stroke: '#78716c',
+    },
+    '& .MuiChartsAxis-tickLabel': {
+        fill: '#57534e',
+        fontSize: '0.75rem',
+    },
+    '& .MuiChartsLegend-label': {
+        fill: '#57534e',
+        fontSize: '0.75rem',
+    },
 };
 
 const actionButtonSx = {
@@ -594,8 +630,8 @@ const ReportsPage = () => {
                         </Typography>
                         <BarChart
                             series={[
-                                { data: [18, 24, 20, 27 ], label: 'Generated' },
-                                { data: [12, 19, 17, 23], label: 'Completed'},
+                                { data: [18, 24, 20, 27 ], label: 'Generated', color: chartPalette.primary },
+                                { data: [12, 19, 17, 23], label: 'Completed', color: chartPalette.accent},
                             ]}
                             height={300}
                             xAxis={[
@@ -605,6 +641,7 @@ const ReportsPage = () => {
                                     label: "Months",
                                 },
                             ]}
+                            sx={chartSx}
                         />
                     </CardContent>
                 </Card>
@@ -624,15 +661,16 @@ const ReportsPage = () => {
                                     series={[
                                         {
                                             data: [
-                                                { id: 0, value: 14, label: 'Sales' },
-                                                { id: 1, value: 10, label: 'Users' },
-                                                { id: 2, value: 8, label: 'Inventory' },
-                                                { id: 3, value: 6, label: 'Finance' },
+                                                { id: 0, value: 14, label: 'Sales', color: chartPalette.primary },
+                                                { id: 1, value: 10, label: 'Users', color: chartPalette.accent },
+                                                { id: 2, value: 8, label: 'Inventory', color: chartPalette.secondary },
+                                                { id: 3, value: 6, label: 'Finance', color: chartPalette.neutral },
                                             ],
                                         },
                                     ]}
                                     width={280}
                                     height={220}
+                                    sx={chartSx}
                                 />
                             </Box>
                         </CardContent>
@@ -648,7 +686,16 @@ const ReportsPage = () => {
                                     The gauge highlights the current percentage of reports completed on time based on the latest reporting cycle.
                             </Typography>
                             <Box sx={{ minHeight: 220, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <Gauge width={180} height={180} value={78}/>
+                                <Gauge
+                                    width={180}
+                                    height={180}
+                                    value={78}
+                                    sx={{
+                                        '& .MuiGauge-valueArc': { fill: chartPalette.accent },
+                                        '& .MuiGauge-referenceArc': { fill: '#e7e5e4' },
+                                        '& .MuiGauge-valueText': { fill: chartPalette.primary, fontWeight: 800 },
+                                    }}
+                                />
                             </Box>
                         </CardContent>
                     </Card>

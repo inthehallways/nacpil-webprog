@@ -38,6 +38,9 @@ const SignInPage = () => {
             localStorage.setItem('token', data.token);
             localStorage.setItem('type', data.type);
             localStorage.setItem('firstName', data.firstName);
+            if (data.username) {
+                localStorage.setItem('username', data.username);
+            }
             navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Unable to log in. Please try again.');
@@ -56,7 +59,7 @@ const SignInPage = () => {
             />    
             <h1 className='text-3xl font-bold tracking-tight text-zinc-900 sm:text-4xl'>Log In</h1>
             <p className='mt-3 text-sm leading-6 text-zinc-600'>
-                Access your account using the same monochrome wireframe language used across the site.
+                Welcome back to Typed. Sign in to continue managing your dashboard.
             </p>
 
             <form className='mt-8 space-y-5' onSubmit={handleSubmit}>

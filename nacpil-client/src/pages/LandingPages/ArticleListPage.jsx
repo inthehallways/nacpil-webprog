@@ -1,8 +1,31 @@
+import { useEffect, useState } from 'react';
 import Button from '../../components/Button.jsx';
 import ArticleList from '../../components/ArticleList.jsx';
-import articles from '../../data/article-content.js';
+import staticArticles from '../../data/article-content.js';
+import { fetchArticles } from '../../services/ArticleService.js';
 
 const ArticleListPage = () => {
+    const [articles, setArticles] = useState(staticArticles);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const loadArticles = async () => {
+            try {
+                const { data } = await fetchArticles();
+                const publishedArticles = data.filter((article) => article.isPublished !== false);
+                if (publishedArticles.length) {
+                    setArticles(publishedArticles);
+                }
+            } catch {
+                setArticles(staticArticles);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadArticles();
+    }, []);
+
     return (
         <div className="flex w-full flex-col gap-6">
             <section className="border-b-2 border-zinc-900 bg-zinc-50 px-4 py-6 sm:px-6 sm:py-8 lg:px-8">
@@ -28,7 +51,11 @@ const ArticleListPage = () => {
                     <h2 className="mt-2 text-2xl font-semibold text-zinc-900">Still want to learn more about MBTI? Read them here.</h2>
                 </div>
                 
-                <ArticleList articles={articles}/>
+                {isLoading ? (
+                    <p className="text-sm font-medium text-zinc-600">Loading articles...</p>
+                ) : (
+                    <ArticleList articles={articles}/>
+                )}
             </section>
         </div>
     );
