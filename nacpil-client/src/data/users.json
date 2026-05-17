@@ -1,6 +1,20 @@
 [
   {
     "id": 1,
+    "firstName": "Celesse Aisle",
+    "lastName": "Nacpil",
+    "age": "20",
+    "gender": "female",
+    "contactNumber": "09123456789",
+    "email": "celessenacpil@gmail.com",
+    "role": "admin",
+    "username": "inthehallways",
+    "password": "arsyn07805",
+    "address": "Dasmariñas City, Cavite",
+    "isActive": true
+  },
+  {
+    "id": 2,
     "firstName": "Alicia",
     "lastName": "Reyes",
     "age": "29",
@@ -14,7 +28,7 @@
     "isActive": true
   },
   {
-    "id": 2,
+    "id": 3,
     "firstName": "Marco",
     "lastName": "Santos",
     "age": "31",
@@ -28,7 +42,7 @@
     "isActive": true
   },
   {
-    "id": 3,
+    "id": 4,
     "firstName": "Bianca",
     "lastName": "Cruz",
     "age": "26",
@@ -42,7 +56,7 @@
     "isActive": false
   },
   {
-    "id": 4,
+    "id": 5,
     "firstName": "Nathan",
     "lastName": "Diaz",
     "age": "34",
@@ -56,7 +70,7 @@
     "isActive": true
   },
   {
-    "id": 5,
+    "id": 6,
     "firstName": "Jasmine",
     "lastName": "Garcia",
     "age": "28",
@@ -70,7 +84,7 @@
     "isActive": false
   },
   {
-    "id": 6,
+    "id": 7,
     "firstName": "Ethan",
     "lastName": "Lopez",
     "age": "33",

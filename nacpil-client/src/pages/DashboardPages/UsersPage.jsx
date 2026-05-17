@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
     Alert,
     Box,
@@ -29,7 +29,7 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import Visibility from '@mui/icons-material/Visibility';
 import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { DataGrid } from '@mui/x-data-grid';
-import usersSeed from '../../data/users.json?raw';
+import { createUser, fetchUsers, updateUser } from '../../services/UserService';
 
 const roles = ['admin', 'editor', 'viewer',];
 const genders = ['male','female','other'];
@@ -41,11 +41,51 @@ const blankForm = {
     gender: '',
     contactNumber: '',
     email: '',
-    role: 'editor',
+    type: 'editor',
     username: '',
     password: '',
     address: '',
     isActive: true,
+};
+
+const normalizeUser = (user) => ({
+    id: user._id || user.id,
+    firstName: String(user.firstName ?? '').trim(),
+    lastName: String(user.lastName ?? '').trim(),
+    age: String(user.age ?? '').trim(),
+    gender: genders.includes(String(user.gender ?? '').trim().toLowerCase())
+        ? String(user.gender ?? '').trim().toLowerCase()
+        : '',
+    contactNumber: String(user.contactNumber ?? '').trim(),
+    email: String(user.email ?? '').trim().toLowerCase(),
+    type: roles.includes(String(user.type ?? user.role ?? '').trim().toLowerCase())
+        ? String(user.type ?? user.role ?? '').trim().toLowerCase()
+        : 'editor',
+    username: String(user.username ?? '').trim().toLowerCase(),
+    password: '',
+    address: String(user.address ?? '').trim(),
+    isActive: typeof user.isActive === 'boolean' ? user.isActive : true,
+});
+
+const buildUserPayload = (form, includePassword = true) => {
+    const payload = {
+        firstName: form.firstName.trim(),
+        lastName: form.lastName.trim(),
+        age: form.age.trim(),
+        gender: form.gender.trim().toLowerCase(),
+        contactNumber: form.contactNumber.trim(),
+        email: form.email.trim().toLowerCase(),
+        type: form.type.trim().toLowerCase(),
+        username: form.username.trim().toLowerCase(),
+        address: form.address.trim(),
+        isActive: form.isActive,
+    };
+
+    if (includePassword && form.password) {
+        payload.password = form.password;
+    }
+
+    return payload;
 };
 
 const labelize = (value) => 
@@ -152,46 +192,13 @@ const dashboardFieldSx = {
     },
 };
 
-const loadUsers = () => {
-    try {
-        return {
-            users: JSON.parse(usersSeed).map((user, index) => ({
-                id: Number(user.id) || index + 1,
-                firstName: String(user.firstName ?? '').trim(),
-                lastName: String(user.lastName ?? '').trim(),
-                age: String(user.age ?? '').trim(),
-                gender: genders.includes(String(user.gender ?? '').trim().toLowerCase()) 
-                    ? String(user.gender ?? '').trim().toLowerCase()
-                    : '',
-                contactNumber: String(user.contactNumber ?? '').trim(),
-                email: String(user.email ?? '').trim().toLowerCase(),
-                role: roles.includes(String(user.role ?? '').trim().toLowerCase()) 
-                    ? String(user.role ?? '').trim().toLowerCase()
-                    : 'editor',
-                username: String(user.username ?? '').trim().toLowerCase(),
-                password: String(user.password ?? ''),
-                address: String(user.address ?? '').trim(),
-                isActive: typeof user.isActive === 'boolean' ? user.isActive : true, 
-            })),
-            error: '',
-        };
-    } catch {
-        return {
-            users: [],
-            error: 'Unable to read users from src/data/users.json',
-        };
-    }
-};
-
-const seed = loadUsers();
-
 const UsersPage = () => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const [users, setUsers] = useState(seed.users);
+    const [users, setUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState('');
     const [filters, setFilters] = useState({
-        role: '',
+        type: '',
         gender: '',
         status: '',
     });
@@ -200,6 +207,26 @@ const UsersPage = () => {
     const [form, setForm] = useState(blankForm);
     const [errors, setErrors] = useState({});
     const [showPassword, setShowPassword] = useState(false);
+    const [apiError, setApiError] = useState('');
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
+
+    useEffect(() => {
+        const loadUsers = async () => {
+            try {
+                setIsLoading(true);
+                setApiError('');
+                const { data } = await fetchUsers();
+                setUsers(data.map(normalizeUser));
+            } catch (error) {
+                setApiError(error.response?.data?.message || 'Unable to load users from the server.');
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        loadUsers();
+    }, []);
 
     const resetForm = () => {
         setForm({ ...blankForm });
@@ -210,6 +237,7 @@ const UsersPage = () => {
         setModal({ open: true, id: user?.id ?? null });
         setForm(user ? { ...blankForm, ...user } : { ...blankForm });
         setErrors({});
+        setApiError('');
     };
 
     const closeModal = () => {
@@ -244,15 +272,18 @@ const UsersPage = () => {
             ['gender', 'Gender'],
             ['contactNumber', 'Contact Number'],
             ['email', 'Email'],
-            ['role', 'Role'],
+            ['type', 'Role'],
             ['username', 'Username'],
-            ['password', 'Password'],
             ['address', 'Address'],
         ].forEach(([key, label]) => {
             if (!String(form[key]).trim()) {
                 nextErrors[key] = `${label} is required.`;
             }
         });
+
+        if (!modal.id && !password.trim()) {
+            nextErrors.password = 'Password is required.';
+        }
 
         if (!nextErrors.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
             nextErrors.email = 'Enter a valid email address.';
@@ -266,7 +297,7 @@ const UsersPage = () => {
             nextErrors.contactNumber = 'Contact number must be exactly 11 digits.';
         }
 
-        if (!nextErrors.password && password.length < 8) {
+        if (!nextErrors.password && password && password.length < 8) {
             nextErrors.password = 'Password must be at least 8 characters.';
         }
 
@@ -286,7 +317,7 @@ const UsersPage = () => {
 
     };
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
         const nextErrors = validate();
 
@@ -295,40 +326,50 @@ const UsersPage = () => {
             return;
         }
 
-        const nextUser = {
-            firstName: form.firstName.trim(),
-            lastName: form.lastName.trim(),
-            age: form.age.trim(),
-            gender: form.gender.trim().toLowerCase(),
-            contactNumber: form.contactNumber.trim(),
-            email: form.email.trim().toLowerCase(),
-            role: form.role.trim().toLowerCase(),
-            username: form.username.trim().toLowerCase(),
-            password: form.password,
-            address: form.address.trim(),
-            isActive: form.isActive,
-        };
+        try {
+            setIsSaving(true);
+            setApiError('');
 
-        setUsers((prev) => 
-            modal.id
-                ? prev.map((user) => (user.id === modal.id ? { ...user, ...nextUser } : user))
-                : [
-                    ...prev,
-                    {
-                        id: prev.reduce((max, user) => Math.max(max, Number(user.id) || 0), 0) + 1,
-                        ...nextUser,
-                    },
-                ]
-        );
-        closeModal();
+            const payload = buildUserPayload(form, !modal.id || Boolean(form.password));
+            const { data } = modal.id
+                ? await updateUser(modal.id, payload)
+                : await createUser(payload);
+            const savedUser = normalizeUser(data);
+
+            setUsers((prev) =>
+                modal.id
+                    ? prev.map((user) => (user.id === modal.id ? savedUser : user))
+                    : [...prev, savedUser]
+            );
+            closeModal();
+        } catch (error) {
+            setApiError(error.response?.data?.message || 'Unable to save user.');
+        } finally {
+            setIsSaving(false);
+        }
     };
 
-    const toggleStatus = (id) => {
-        setUsers((prev) => 
-            prev.map((user) => 
-                user.id === id ? { ...user, isActive: !user.isActive } : user
-            )
-        );
+    const toggleStatus = async (id) => {
+        const targetUser = users.find((user) => user.id === id);
+        if (!targetUser) {
+            return;
+        }
+
+        try {
+            setApiError('');
+            const payload = buildUserPayload(
+                { ...targetUser, isActive: !targetUser.isActive },
+                false
+            );
+            const { data } = await updateUser(id, payload);
+            const savedUser = normalizeUser(data);
+
+            setUsers((prev) =>
+                prev.map((user) => (user.id === id ? savedUser : user))
+            );
+        } catch (error) {
+            setApiError(error.response?.data?.message || 'Unable to update user status.');
+        }
     };
 
     const handleFilterChange = ({ target: { name, value } }) => {
@@ -348,7 +389,7 @@ const UsersPage = () => {
 
     const clearFilters = () => {
         setFilters({
-            role: '',
+            type: '',
             gender: '',
             status: '',
         });
@@ -363,7 +404,7 @@ const UsersPage = () => {
             user.email.toLowerCase().includes(normalizedSearch) ||
             user.username.toLowerCase().includes(normalizedSearch);
 
-        const matchesRole = !filters.role || user.role === filters.role;
+        const matchesRole = !filters.type || user.type === filters.type;
         const matchesGender = !filters.gender || user.gender === filters.gender;
         const matchesStatus =
             !filters.status ||
@@ -407,10 +448,10 @@ const UsersPage = () => {
         { field: 'contactNumber', headerName: 'Contact Number', minWidth: 160 },
         { field: 'email', headerName: 'Email', flex: 1.1, minWidth: 220 },
         {
-            field: 'role',
+            field: 'type',
             headerName: 'Role',
             minWidth: 120,
-            valueGetter: (_, row) => labelize(row.role),
+            valueGetter: (_, row) => labelize(row.type),
         },
         {
             field: 'status',
@@ -590,8 +631,8 @@ const UsersPage = () => {
                     <TextField
                         select
                         label="Role"
-                        name="role"
-                        value={filters.role}
+                        name="type"
+                        value={filters.type}
                         onChange={handleFilterChange}
                         fullWidth
                         sx={dashboardFieldSx}
@@ -669,9 +710,15 @@ const UsersPage = () => {
                 </Stack>
             </Popover>
 
-            {seed.error ? (
+            {apiError ? (
                 <Alert severity="error" sx={{ mb: 2 }}>
-                    {seed.error}
+                    {apiError}
+                </Alert>
+            ) : null}
+
+            {isLoading ? (
+                <Alert severity="info" sx={{ mb: 2 }}>
+                    Loading users from the server...
                 </Alert>
             ) : null}
 
@@ -787,7 +834,7 @@ const UsersPage = () => {
                                 <TextField {...fieldProps('email', 'Email Address', { type: 'email' })} />
                             </Stack>
                             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                                <TextField {...fieldProps('role', 'Role', { select: true })}>
+                                <TextField {...fieldProps('type', 'Role', { select: true })}>
                                     {roles.map((role) => (
                                         <MenuItem key={role} value={role}>
                                             {labelize(role)}
@@ -880,6 +927,7 @@ const UsersPage = () => {
                         <Button
                             type="submit"
                             variant="contained"
+                            disabled={isSaving}
                             sx={{
                                 ...actionButtonSx,
                                 minWidth: 132,
@@ -891,7 +939,7 @@ const UsersPage = () => {
                                 },
                             }}
                         >
-                            {modal.id ? 'Update User' : 'Save User'}
+                            {isSaving ? 'Saving...' : modal.id ? 'Update User' : 'Save User'}
                         </Button>
                     </DialogActions>
                 </Box>
